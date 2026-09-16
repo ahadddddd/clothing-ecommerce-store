@@ -13,34 +13,33 @@ router.post('/', async (req, res) => {
 
   try {
     const newOrder = await order.save();
-    res.status(201).json(newOrder);
+    res.status(201).json({
+      message: 'Order placed successfully',
+      orderId: newOrder._id,
+    });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
 });
 
-// Get user's orders
+// Get order by ID
+router.get('/:id', async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+    res.json(order);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Get all orders for a user
 router.get('/user/:userId', async (req, res) => {
   try {
     const orders = await Order.find({ userId: req.params.userId });
     res.json(orders);
   } catch (err) {
     res.status(500).json({ message: err.message });
-  }
-});
-
-// Update order status
-router.put('/:id', async (req, res) => {
-  try {
-    const order = await Order.findById(req.params.id);
-    if (!order) return res.status(404).json({ message: 'Order not found' });
-
-    if (req.body.status) order.status = req.body.status;
-
-    const updated = await order.save();
-    res.json(updated);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
   }
 });
 
